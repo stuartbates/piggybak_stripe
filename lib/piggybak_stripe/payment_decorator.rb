@@ -18,7 +18,7 @@ module PiggybakStripe
       
       def process(order)
         return true if !self.new_record?
-        
+        logger.debug "PROCESSING PAYMENT"
         calculator = ::PiggybakStripe::PaymentCalculator::Stripe.new(self.payment_method)
         Stripe.api_key = calculator.secret_key
         begin
@@ -33,6 +33,7 @@ module PiggybakStripe
           return true
         rescue Stripe::CardError, Stripe::InvalidRequestError => e
           self.errors.add :payment_method_id, e.message
+          logger.debug e.message
           return false
         end
       end
